@@ -1,6 +1,6 @@
 import logging
 from aiogram import F, Router
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from aiogram.filters import Command
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
@@ -114,6 +114,28 @@ async def user_registaration_step_phone(message: Message, state: FSMContext):
 
         logger.error(f"Процесс регистрации. На стадии ввода номера тел возникла ошибка {err}. \
 Пользователь {message.from_user.id} {message.from_user.full_name} {message.from_user.username}")
+
+
+
+
+@router.message(F.text.lower() == "my phone num")
+async def test_phone_number(message: Message):
+    await message.answer(
+        text="Поделиться контактами",
+        reply_markup=ReplyKeyboardMarkup(
+            keyboard=[
+                [KeyboardButton(text="Поделиться контактами", request_contact=True)]
+            ],
+            resize_keyboard=True
+        )
+    )
+
+
+@router.message(F.contact)
+async def return_phone_number(message: Message):
+    contact = message.contact.phone_number
+    await message.answer(text=f"Ваш номер {contact}", reply_markup=ReplyKeyboardRemove())
+    
 
 
 
