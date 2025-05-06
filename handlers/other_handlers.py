@@ -39,7 +39,7 @@ async def proccess_command_start(message: Message, state: FSMContext):
         if base._check_role(tg_id=message.from_user.id) == "operator":
             await message.answer(
                 text=LEXCON_OPERATOR_HANDLERS["welcome"],
-                reply_markup=user_inline_kb
+                reply_markup=operator_inline_kb
             )
             logger.info(f"Авторизовался через СТАРТ оператор {message.from_user.id} {message.from_user.full_name} {message.from_user.username}")
 
@@ -47,7 +47,7 @@ async def proccess_command_start(message: Message, state: FSMContext):
         elif base._check_role(tg_id=message.from_user.id) == "user":
             await message.answer(
                 text=LEXCON_USER_HANDLERS["welcome"],
-                reply_markup=operator_inline_kb
+                reply_markup=user_inline_kb
             )
             logger.info(f"Авторизовался через СТАРТ пользователь {message.from_user.id} {message.from_user.full_name} {message.from_user.username}")
 

@@ -17,11 +17,18 @@ LEXCON_USER_KEYBOARDS: dict[str, str] = {
 }
 
 LEXCON_USER_HANDLERS: dict[str, str] = {
-    "welcome": "Приветсвие пользователя"
+    "welcome": "Приветсвие пользователя",
+    "products_list_for_create_prder": "Выберите букет для заказа"
 }
 
 
-LEXICON_OPERATOR_KEYBOARDS: dict[str, str] = {}
+LEXICON_OPERATOR_KEYBOARDS: dict[str, str] = {
+    "show_orders": "Список заказов",
+    "show_product": "Список букетов",
+    "add_product": "Добавить букет",
+    "drop_product": "Удалить букет",
+    "show_users": "Список пользователей"
+}
 
 LEXCON_OPERATOR_HANDLERS: dict[str, str] = {
     "welcome": "Приветсвие оператора"

@@ -9,7 +9,7 @@ user_but_show_orders = InlineKeyboardButton(
 )
 
 user_but_create_order = InlineKeyboardButton(
-    text="create_order",
+    text=LEXCON_USER_KEYBOARDS["create_order"],
     callback_data="user_but_create_order"
 )
 
