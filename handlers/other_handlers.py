@@ -100,7 +100,8 @@ async def user_registaration_step_phone(message: Message, state: FSMContext):
         base.users_registration(tg_id=message.from_user.id, data=cache[message.from_user.id])
         await state.clear()
         await message.answer(
-            text=LEXICON_RU["reg_ok"]
+            text=LEXICON_RU["reg_ok"],
+            reply_markup=user_inline_kb
         )
 
         logger.info(f"Процесс регистрации. Принят и записан в кэш номер тел {message.text}. \

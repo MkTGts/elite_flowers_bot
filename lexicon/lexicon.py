@@ -18,7 +18,12 @@ LEXCON_USER_KEYBOARDS: dict[str, str] = {
 
 LEXCON_USER_HANDLERS: dict[str, str] = {
     "welcome": "Приветсвие пользователя",
-    "products_list_for_create_prder": "Выберите букет для заказа"
+    "products_list_for_create_prder": "Выберите букет для заказа",
+    "order_no": "Отмена создания заказа\n\nГлавное меню",
+    "order_with_delivery": "Доставка или самовывоз",
+    "deliv": "Доставка",
+    "samo": "Самовывоз",
+    "create_order_samo": "Заказ создан",
 }
 
 

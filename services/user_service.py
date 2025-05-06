@@ -27,12 +27,13 @@ class UserService(ServiceDB):
     def create_order(self, session: Session, tg_id: int, 
                      product_id, 
                      delivery: str,
-                     adress: str,
                      status: str,
-                     total: int):
+                     total: int,
+                     adress: str|None=None,):
         '''Создание заказа пользователем'''
+        user_i = session.query(User).filter(User.tg_id==tg_id).first().user_id
         new_order = Order(
-            user_id=session.query(User).filter(User.tg_id==tg_id).first.user_id,
+            user_id=user_i,
             product_id=product_id,
             delivery=delivery,
             adress=adress,
