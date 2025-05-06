@@ -43,7 +43,7 @@ async def process_user_show_orders(callback: CallbackQuery):
     try:
         await callback.message.answer(
             text="\n\n".join([
-                f"ID заказа: {order.product_id}\nДоставка: {order.delivery}\nСтатус: {order.status}\nДата: {order.date}\nСумма: {order.total}"
+                f"ID заказа: {order.order_id}\nЗаказ: Букет №{order.product_id}\nДоставка: {order.delivery}\nСтатус: {order.status}\nДата: {order.date}\nСумма: {order.total} руб."
                 for order in user.show_orders(tg_id=callback.from_user.id)
             ]),
             reply_markup=user_inline_kb
