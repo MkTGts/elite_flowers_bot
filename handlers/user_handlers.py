@@ -307,3 +307,88 @@ async def perocess_user_create_order_deliv_in(message: Message, state: FSMContex
         logger.info(f"Создается заказ на доставку. Пользователь {message.from_user.id} {message.from_user.full_name} {message.from_user.username}")
     except Exception as err:
         logger.error(f"Адрес доставки не принят: {err}. Пользователь {message.from_user.id} {message.from_user.full_name} {message.from_user.username}")
+
+
+
+@router.callback_query(IsUser(), F.data.in_("user_but_pay_order"))
+async def process_user_select_pay_order(callback: CallbackQuery):
+    try:
+        await callback.message.answer(
+            text=LEXCON_USER_HANDLERS["select_pay_order"]
+        )
+
+        for order in user.show_orders(tg_id=callback.from_user.id):
+            if order.status == "Не оплачен":
+                await callback.message.answer_photo(
+                    photo=FSInputFile(f"./photo/photo{order.product_id}.jpg"),
+                    caption=f"ID заказа {order.order_id}\n"
+                         f"Способ получения: {order.delivery}\n"
+                         f"Дата заказа: {order.date}\n"
+                         f"Запланированная дата вручения: {order.date_delivery}\n"
+                         f"Общая сумма заказа: <b>{order.total}</b> руб.",
+                    reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                        [InlineKeyboardButton(
+                            text=f"Перейти к оплате заказа №{order.order_id}",
+                            callback_data=f"select_order_for_pay{order.order_id}"
+                        )]
+                ])
+                )
+        logger.info(f"Пользователь нажал оплатить заказ {callback.message.from_user.id} {callback.message.from_user.full_name} {callback.message.from_user.username}")
+    except Exception as err:
+        logger.error(f"Во время нажатия пользователем оплатить заказ, возникла ошибка {err}.Пользователь {callback.message.from_user.id} {callback.message.from_user.full_name} {callback.message.from_user.username}")
+
+    await callback.answer()
+
+
+@router.callback_query(IsUser(), F.data.regexp(r"select_order_for_pay\d+"))   
+async def process_user_select_pay_order_return_info(callback: CallbackQuery):
+    try:
+        n = re.findall(r"\d+", callback.data)[0]
+        await callback.message.answer(
+            text=LEXCON_USER_HANDLERS["select_pay_order"],
+            reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                            [InlineKeyboardButton(
+                                text=f"Я оплатил заказа №{n}",
+                                callback_data=f"paid"
+                            )],
+                            [InlineKeyboardButton(
+                                text="Отмена оплаты",
+                                callback_data=f"dont_paid"
+                            )]
+                ])
+        )
+        logger.info(f"Выведена информация по оплате заказа пользователю {callback.message.from_user.id} {callback.message.from_user.full_name} {callback.message.from_user.username}")
+    except Exception as err:
+        logger.error(f"Во время вывода информации об оплате, возникла ошибка {err}.Пользователь {callback.message.from_user.id} {callback.message.from_user.full_name} {callback.message.from_user.username}")
+
+    await callback.answer()
+
+
+@router.callback_query(IsUser(), F.data.in_("paid"))   
+async def process_user_select_say_pay_order(callback: CallbackQuery):
+    try:
+        pass
+        await callback.message.answer(
+            text=LEXCON_USER_HANDLERS["user_say_that_paid"],
+            reply_markup=user_inline_kb
+        )
+        logger.info(f"Пользователь оплатил заказ {callback.message.from_user.id} {callback.message.from_user.full_name} {callback.message.from_user.username}")
+    except Exception as err:
+        logger.error(f"Ошибка нажатия кнопки Оплатил {err}.Пользователь {callback.message.from_user.id} {callback.message.from_user.full_name} {callback.message.from_user.username}")
+
+    await callback.answer()
+
+
+@router.callback_query(IsUser(), F.data.in_("dont_paid"))   
+async def process_user_select_say_pay_order(callback: CallbackQuery):
+    try:
+        pass
+        await callback.message.answer(
+            text=LEXCON_USER_HANDLERS["user_say_dont_paid"],
+            reply_markup=user_inline_kb
+        )
+        logger.info(f"Пользователь отказался от оплаты {callback.message.from_user.id} {callback.message.from_user.full_name} {callback.message.from_user.username}")
+    except Exception as err:
+        logger.error(f"Ошибка при отказе пользователя от оплаты {err}.Пользователь {callback.message.from_user.id} {callback.message.from_user.full_name} {callback.message.from_user.username}")
+
+    await callback.answer()

@@ -13,8 +13,13 @@ user_but_create_order = InlineKeyboardButton(
     callback_data="user_but_create_order"
 )
 
+user_but_pay_order = InlineKeyboardButton(
+    text=LEXCON_USER_KEYBOARDS["pay_order"],
+    callback_data="user_but_pay_order"
+)
+
 user_inline_kb = InlineKeyboardMarkup(
-    inline_keyboard=[[user_but_create_order], [user_but_show_orders]]
+    inline_keyboard=[[user_but_create_order], [user_but_show_orders], [user_but_pay_order]]
 )
 
 
