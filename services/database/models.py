@@ -42,6 +42,7 @@ class Order(Base):
     adress = Column(String)
     status = Column(String)
     date = Column(String)
+    date_delivery = Column(String)
     total = Column(Integer)
 
     

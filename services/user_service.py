@@ -29,7 +29,9 @@ class UserService(ServiceDB):
                      delivery: str,
                      status: str,
                      total: int,
-                     adress: str|None=None,):
+                     date_delivery: str,
+                     adress: str|None=None,
+                     ):
         '''Создание заказа пользователем'''
         user_i = session.query(User).filter(User.tg_id==tg_id).first().user_id
         new_order = Order(
@@ -39,6 +41,7 @@ class UserService(ServiceDB):
             adress=adress,
             status=status,
             date=_now_date(),
+            date_delivery=date_delivery,
             total=total
         )
         session.add(new_order)

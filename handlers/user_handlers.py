@@ -34,8 +34,7 @@ router = Router()
 cache = {}
 
 class UserCreateOrder(StatesGroup):
-    waiting_user_name = State()
-    waiting_phone_number = State()
+    waiting_date_delivery = State()
 
 
 @router.callback_query(IsUser(), F.data.in_("user_but_show_orders"))
@@ -43,7 +42,7 @@ async def process_user_show_orders(callback: CallbackQuery):
     try:
         await callback.message.answer(
             text="\n\n".join([
-                f"ID заказа: {order.order_id}\nЗаказ: Букет №{order.product_id}\nДоставка: {order.delivery}\nСтатус: {order.status}\nДата: {order.date}\nСумма: {order.total} руб."
+                f"ID заказа: {order.order_id}\nЗаказ: Букет №{order.product_id}\nДоставка: {order.delivery}\nСтатус: {order.status}\nДата заказа: {order.date}\nДата получения: {order.date_delivery}\nСумма: {order.total} руб."
                 for order in user.show_orders(tg_id=callback.from_user.id)
             ]),
             reply_markup=user_inline_kb
@@ -81,6 +80,7 @@ async def process_user_select_for_create_order(callback: CallbackQuery):
 @router.callback_query(IsUser(), F.data.regexp(r"user_select_product\d+$"))
 async def process_user_create_order_conf(callback: CallbackQuery):
     n = re.findall(r"\d+", callback.data)[0]
+    
 
     await callback.message.answer(
         text="\n\nПроцесс создания заказа",
@@ -114,40 +114,133 @@ async def perocess_user_create_order_no(callback: CallbackQuery):
 
     await callback.answer()
 
+    
 
 @router.callback_query(IsUser(), F.data.regexp(r"user_select_product\d+_ok"))
-async def perocess_user_create_order_ok(callback: CallbackQuery):
+async def perocess_user_create_order_ok_select_date_delivery(callback: CallbackQuery):
     try:
         n = re.findall(r"\d+", callback.data)[0]
 
         await callback.message.answer(
-            text=LEXCON_USER_HANDLERS["order_with_delivery"],
+            text=LEXCON_USER_HANDLERS["select_date_deivery"],
             reply_markup=InlineKeyboardMarkup(inline_keyboard=[
                     [InlineKeyboardButton(
-                        text=LEXCON_USER_HANDLERS["deliv"],
-                        callback_data=f"user_select_product_deliv{n}"
+                        text="Ближайшее время",
+                        callback_data=f"user_select_product_deliv_blij{n}"
                     )],
                     [InlineKeyboardButton(
-                        text=LEXCON_USER_HANDLERS["samo"],
-                        callback_data=f"user_select_product_samo{n}"
+                        text="Ввести дату",
+                        callback_data=f"user_select_product_deliv_other{n}"
                     )],
             ])
         )
+        cache[callback.message.from_user.id] = {
+            "num_buketa": n
+        }
+        logger.info((f"Выбор даты получения заказа. Пользователь {callback.message.from_user.id} {callback.message.from_user.full_name} {callback.message.from_user.username}"))
     except Exception as err:
-        logger.error(f"Во время выбора доставки или самовывоза ошибка {err}. Пользователь {callback.message.from_user.id} {callback.message.from_user.full_name} {callback.message.from_user.username}")
+        logger.error(f"Во время выбора времени ошибка {err}. Пользователь {callback.message.from_user.id} {callback.message.from_user.full_name} {callback.message.from_user.username}")
 
     await callback.answer()
 
 
-@router.callback_query(IsUser(), F.data.regexp(r"user_select_product_samo\d+"))
+
+@router.callback_query(F.data.regexp(r"user_select_product_deliv_other"))
+async def process_user_create_order_custom_date_delivery(callback: CallbackQuery, state: FSMContext):
+    try:
+        await callback.message.answer(
+            text="Введите желаемую дату заказа"
+        )
+        await state.set_state(UserCreateOrder.waiting_date_delivery)
+    except Exception as err:
+        logger.error(f"Не выходит сообщение о просьбе ввести дату: {err}. Пользователь {callback.message.from_user.id} {callback.message.from_user.full_name} {callback.message.from_user.username}")
+
+    await callback.answer()
+
+
+
+async def perocess_user_create_order_ok(event: CallbackQuery | Message):
+    try:
+        if isinstance(event, CallbackQuery):
+            await event.message.answer(
+            text=LEXCON_USER_HANDLERS["order_with_delivery"],
+            reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                    [InlineKeyboardButton(
+                        text=LEXCON_USER_HANDLERS["deliv"],
+                        callback_data=f"user_select_product_deliv"
+                    )],
+                    [InlineKeyboardButton(
+                        text=LEXCON_USER_HANDLERS["samo"],
+                        callback_data=f"user_select_product_samo"
+                    )],
+            ])
+        )
+            await event.answer()
+
+        else:
+            await event.answer(
+            text=LEXCON_USER_HANDLERS["order_with_delivery"],
+            reply_markup=InlineKeyboardMarkup(inline_keyboard=[
+                    [InlineKeyboardButton(
+                        text=LEXCON_USER_HANDLERS["deliv"],
+                        callback_data=f"user_select_product_deliv"
+                    )],
+                    [InlineKeyboardButton(
+                        text=LEXCON_USER_HANDLERS["samo"],
+                        callback_data=f"user_select_product_samo"
+                    )],
+            ])
+        )
+
+    except Exception as err:
+        logger.error(f"Во время выбора доставки или самовывоза ошибка {err}.")
+
+
+
+
+@router.callback_query(IsUser(), (F.data.regexp(r"user_select_product_deliv_blij")))
+async def delivery_date_blij(callback: CallbackQuery):
+    try:
+        cache[callback.message.from_user.id].update({
+                "date_delivery": "Ближайшее"
+            }
+        )
+        await perocess_user_create_order_ok(event=callback)
+        logger.info((f"Выбор даты получения - Ближайшее. Пользователь {callback.message.from_user.id} {callback.message.from_user.full_name} {callback.message.from_user.username}"))
+    except Exception as err:
+        logger.error(f"Не удалось применить дату получение - Ближайшее: {err}. Пользователь {callback.message.from_user.id} {callback.message.from_user.full_name} {callback.message.from_user.username}")
+    
+    await callback.answer()
+
+
+@router.message(IsUser(), UserCreateOrder.waiting_date_delivery)
+async def delivery_date_custom(message: Message, state: FSMContext):
+    try:
+        cache[message.from_user.id].update({
+                "date_delivery": message.text
+            }
+        )
+
+        await perocess_user_create_order_ok(event=message)
+        logger.info((f"Выбор даты получения - Кастомный. Пользователь {message.from_user.id} {message.from_user.full_name} {message.from_user.username}"))
+    except Exception as err:
+        logger.error(f"Не удалось применить дату получение - Кастомный: {err}. Пользователь {message.from_user.id} {message.from_user.full_name} {message.from_user.username}")
+    await state.clear()
+
+
+
+
+
+@router.callback_query(IsUser(), F.data.regexp(r"user_select_product_samo"))
 async def perocess_user_create_order_samo(callback: CallbackQuery):
     try:
-        n = int(re.findall(r"\d+", callback.data)[0])
+        n = cache[callback.message.from_user.id]["num_buketa"]
         user.create_order(
             tg_id=int(callback.from_user.id),
             product_id=n,
             delivery="Самовывоз",
             status="Не оплачен",
+            date_delivery=cache[callback.message.from_user.id]["date_delivery"],
             total=cache[int(n)]["price"]
         )
         
@@ -157,7 +250,7 @@ async def perocess_user_create_order_samo(callback: CallbackQuery):
         )
 
         logger.info(f"Создан заказ на самовывоз. Пользователь {callback.message.from_user.id} {callback.message.from_user.full_name} {callback.message.from_user.username}")
-    
+        cache[callback.message.from_user.id] = {}
 
     
     except Exception as err:

@@ -23,6 +23,7 @@ LEXCON_USER_HANDLERS: dict[str, str] = {
     "order_with_delivery": "Доставка или самовывоз",
     "deliv": "Доставка",
     "samo": "Самовывоз",
+    "select_date_deivery": "Когда хотите получить заказ?",
     "create_order_samo": "Заказ создан",
 }
 
