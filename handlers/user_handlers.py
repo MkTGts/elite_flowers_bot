@@ -99,7 +99,7 @@ async def process_user_create_order_conf(callback: CallbackQuery):
 
     await callback.message.answer_photo(
         photo=FSInputFile(f"./photo/photo{n}.jpg"),
-        caption=f"Выбран букет №{n}\nЦена: {cache[int(n)]["price"]} руб.",
+        caption=f"Выбран букет №{n}\nЦена: {cache[int(n)]["price"]} руб.\n<b>*В случае выбора доставки, ее стоимость будет составлять 300руб. и она будет добавлена к общей сумме заказа.</b>",
         reply_markup=InlineKeyboardMarkup(inline_keyboard=[
                 [InlineKeyboardButton(
                     text=f"Все верно",
@@ -295,7 +295,7 @@ async def perocess_user_create_order_deliv_in(message: Message, state: FSMContex
             status="Не оплачен",
             date_delivery=cache[message.from_user.id]["date_delivery"],
             adress=message.text,
-            total=cache[int(n)]["price"]
+            total=cache[int(n)]["price"] + 300
         )
         
         await message.answer(
