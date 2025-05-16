@@ -41,6 +41,7 @@ LEXCON_USER_HANDLERS: dict[str, str] = {
 
 LEXICON_OPERATOR_KEYBOARDS: dict[str, str] = {
     "show_orders": "Список заказов",
+    "edit_status_orders": "Изменить статус заказа",
     "show_product": "Список букетов",
     "add_product": "Добавить букет",
     "drop_product": "Удалить букет",

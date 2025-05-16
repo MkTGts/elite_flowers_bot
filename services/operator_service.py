@@ -1,7 +1,7 @@
 from .base_service import ServiceDB
 from services.decorators import with_session
 from sqlalchemy.orm import Session
-from services.database.models import Operator, Product
+from services.database.models import Operator, Product, Order
 import logging
 
 
@@ -21,6 +21,12 @@ logging.basicConfig(
 class OperatorService(ServiceDB):
     def __init__(self):
         super().__init__()
+
+
+    @with_session
+    def show_orders(self, session: Session):
+        '''Просмотр списка всех заказов оператором'''
+        return session.query(Order).all()
 
 
     @with_session

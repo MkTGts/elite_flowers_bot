@@ -8,6 +8,10 @@ operator_inline_kb = InlineKeyboardMarkup(
         InlineKeyboardButton(
             text=LEXICON_OPERATOR_KEYBOARDS["show_orders"],
             callback_data="operator_but_show_orders")], 
+        [
+        InlineKeyboardButton(
+            text=LEXICON_OPERATOR_KEYBOARDS["edit_status_orders"],
+            callback_data="operator_but_edit_status_orders")], 
                       [
         InlineKeyboardButton(
             text=LEXICON_OPERATOR_KEYBOARDS["show_product"],

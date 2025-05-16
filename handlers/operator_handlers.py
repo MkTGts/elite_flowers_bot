@@ -30,6 +30,11 @@ async def process_operator_show_orders(message: Message):
     pass
 
 
+@router.callback_query(IsOperator(), F.data.in_("operator_but_edit_status_orders"))
+async def process_operator_edit_status_orders(message: Message):
+    pass
+
+
 @router.callback_query(IsOperator(), F.data.in_("operator_but_show_product"))
 async def process_operator_show_product(message: Message):
     pass
