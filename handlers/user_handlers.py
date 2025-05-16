@@ -35,6 +35,7 @@ cache = {}
 
 class UserCreateOrder(StatesGroup):
     waiting_date_delivery = State()
+    waiting_address_delivery = State()
 
 
 @router.callback_query(IsUser(), F.data.in_("user_but_show_orders"))
@@ -42,7 +43,7 @@ async def process_user_show_orders(callback: CallbackQuery):
     try:
         await callback.message.answer(
             text="\n\n".join([
-                f"ID заказа: {order.order_id}\nЗаказ: Букет №{order.product_id}\nДоставка: {order.delivery}\nСтатус: {order.status}\nДата заказа: {order.date}\nДата получения: {order.date_delivery}\nСумма: {order.total} руб."
+                f"ID заказа: {order.order_id}\nЗаказ: Букет №{order.product_id}\nДоставка: {order.delivery}\nАдресс: {order.adress}\nСтатус: {order.status}\nДата заказа: {order.date}\nДата получения: {order.date_delivery}\nСумма: {order.total} руб."
                 for order in user.show_orders(tg_id=callback.from_user.id)
             ]),
             reply_markup=user_inline_kb
@@ -238,7 +239,7 @@ async def perocess_user_create_order_samo(callback: CallbackQuery):
         user.create_order(
             tg_id=int(callback.from_user.id),
             product_id=n,
-            delivery="Самовывоз",
+            delivery="<b>Самовывоз</b>",
             status="Не оплачен",
             date_delivery=cache[callback.from_user.id]["date_delivery"],
             total=cache[int(n)]["price"]
@@ -257,3 +258,43 @@ async def perocess_user_create_order_samo(callback: CallbackQuery):
         logger.error(f"Во время создания заказа на самовывоз ошибка {err}. Пользователь {callback.message.from_user.id} {callback.message.from_user.full_name} {callback.message.from_user.username}")
 
     await callback.answer()
+
+    
+@router.callback_query(IsUser(), F.data.regexp(r"user_select_product_deliv"))
+async def perocess_user_create_order_deliv(callback: CallbackQuery, state: FSMContext):
+    try:
+        await callback.message.answer(
+            text=LEXCON_USER_HANDLERS["input_address_deliv"]
+        )
+        await state.set_state(UserCreateOrder.waiting_address_delivery)
+
+        logger.info(f"Запрашиваться адрес доставки. Пользователь {callback.message.from_user.id} {callback.message.from_user.full_name} {callback.message.from_user.username}")
+    except Exception as err:
+        logger.error(f"Во время запроса адреса доствки: {err}. Пользователь {callback.message.from_user.id} {callback.message.from_user.full_name} {callback.message.from_user.username}")
+
+    await callback.answer()
+
+
+@router.message(IsUser(), UserCreateOrder.waiting_address_delivery)
+async def perocess_user_create_order_deliv_in(message: Message, state: FSMContext):
+    try:
+        n = cache[message.from_user.id]["num_buketa"]
+        user.create_order(
+            tg_id=int(message.from_user.id),
+            product_id=n,
+            delivery="<b>Доставка</b>",
+            status="Не оплачен",
+            date_delivery=cache[message.from_user.id]["date_delivery"],
+            adress=message.text,
+            total=cache[int(n)]["price"]
+        )
+        
+        await message.answer(
+            text=LEXCON_USER_HANDLERS["create_order_deliv"],
+            reply_markup=user_inline_kb
+        )
+        cache[message.from_user.id] = {}
+
+        logger.info(f"Создается заказ на доставку. Пользователь {message.from_user.id} {message.from_user.full_name} {message.from_user.username}")
+    except Exception as err:
+        logger.error(f"Адрес доставки не принят: {err}. Пользователь {message.from_user.id} {message.from_user.full_name} {message.from_user.username}")
