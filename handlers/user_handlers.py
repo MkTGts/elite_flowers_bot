@@ -134,7 +134,7 @@ async def perocess_user_create_order_ok_select_date_delivery(callback: CallbackQ
                     )],
             ])
         )
-        cache[callback.message.from_user.id] = {
+        cache[callback.from_user.id] = {
             "num_buketa": n
         }
         logger.info((f"Выбор даты получения заказа. Пользователь {callback.message.from_user.id} {callback.message.from_user.full_name} {callback.message.from_user.username}"))
@@ -201,7 +201,7 @@ async def perocess_user_create_order_ok(event: CallbackQuery | Message):
 @router.callback_query(IsUser(), (F.data.regexp(r"user_select_product_deliv_blij")))
 async def delivery_date_blij(callback: CallbackQuery):
     try:
-        cache[callback.message.from_user.id].update({
+        cache[callback.from_user.id].update({
                 "date_delivery": "Ближайшее"
             }
         )
@@ -234,13 +234,13 @@ async def delivery_date_custom(message: Message, state: FSMContext):
 @router.callback_query(IsUser(), F.data.regexp(r"user_select_product_samo"))
 async def perocess_user_create_order_samo(callback: CallbackQuery):
     try:
-        n = cache[callback.message.from_user.id]["num_buketa"]
+        n = cache[callback.from_user.id]["num_buketa"]
         user.create_order(
             tg_id=int(callback.from_user.id),
             product_id=n,
             delivery="Самовывоз",
             status="Не оплачен",
-            date_delivery=cache[callback.message.from_user.id]["date_delivery"],
+            date_delivery=cache[callback.from_user.id]["date_delivery"],
             total=cache[int(n)]["price"]
         )
         
@@ -250,7 +250,7 @@ async def perocess_user_create_order_samo(callback: CallbackQuery):
         )
 
         logger.info(f"Создан заказ на самовывоз. Пользователь {callback.message.from_user.id} {callback.message.from_user.full_name} {callback.message.from_user.username}")
-        cache[callback.message.from_user.id] = {}
+        cache[callback.from_user.id] = {}
 
     
     except Exception as err:
