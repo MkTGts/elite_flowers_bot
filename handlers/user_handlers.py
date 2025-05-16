@@ -43,9 +43,18 @@ async def process_user_show_orders(callback: CallbackQuery):
     try:
         await callback.message.answer(
             text="\n\n".join([
-                f"ID заказа: {order.order_id}\nЗаказ: Букет №{order.product_id}\nДоставка: {order.delivery}\nАдресс: {order.adress}\nСтатус: {order.status}\nДата заказа: {order.date}\nДата получения: {order.date_delivery}\nСумма: {order.total} руб."
-                for order in user.show_orders(tg_id=callback.from_user.id)
-            ]),
+                                f"ID заказа: {order.order_id}\n"
+                                f"Заказ: Букет №{order.product_id}\n"
+                                f"<b>Доставка: {order.delivery}</b>\n"
+                                f"<b>Адрес: {order.adress}</b>\nСтатус: {order.status}\nДата заказа: {order.date}\nДата получения: {order.date_delivery}\nСумма: {order.total} руб." 
+                                if order.adress is not None else f"ID заказа: {order.order_id}\nЗаказ: Букет №{order.product_id}\n<b>Доставка: {order.delivery}\n</b>Статус: {order.status}\nДата заказа: {order.date}\nДата получения: {order.date_delivery}\nСумма: {order.total} руб." 
+                                #f"Статус: {order.status}\n"
+                                #f"Дата заказа: {order.date}\n"
+                                #f"Дата получения: {order.date_delivery}\n"
+                                #f"Сумма: {order.total} руб."
+                                #+ (f"\nАдрес: {order.adress}" if order.adress is not None else "")
+                                for order in user.show_orders(tg_id=callback.from_user.id)
+                            ]),
             reply_markup=user_inline_kb
         )
         logger.info(f"Список заказов запросил пользователь {callback.message.from_user.id} {callback.message.from_user.full_name} {callback.message.from_user.username}")
