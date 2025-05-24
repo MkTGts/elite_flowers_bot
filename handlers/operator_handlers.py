@@ -26,31 +26,49 @@ router = Router()
 
 
 @router.callback_query(IsOperator(), F.data.in_("operator_but_show_orders"))
-async def process_operator_show_orders(message: Message):
-    pass
+async def process_operator_show_orders(callback: CallbackQuery):
+    try:
+        logger.info(f"Оператор с ID {callback.from_user.id} просмотрел список заказов.")
+    except Exception as err:
+        logger.error(f"У оператор с ID {callback.from_user.id} возникла ошибка {err} во время попытки посмотреть список заказов")
 
 
 @router.callback_query(IsOperator(), F.data.in_("operator_but_edit_status_orders"))
-async def process_operator_edit_status_orders(message: Message):
-    pass
+async def process_operator_edit_status_orders(callback: CallbackQuery):
+    try:
+        logger.info(f"Оператор с ID {callback.from_user.id} начал изменение статуса заказа.")
+    except Exception as err:
+        logger.error(f"У оператор с ID {callback.from_user.id} возникла ошибка {err} во время попытки изменить статус заказа")
 
 
 @router.callback_query(IsOperator(), F.data.in_("operator_but_show_product"))
-async def process_operator_show_product(message: Message):
-    pass
+async def process_operator_show_product(callback: CallbackQuery):
+    try:
+        logger.info(f"Оператор с ID {callback.from_user.id} просмотрел список продуктов.")
+    except Exception as err:
+        logger.error(f"У оператор с ID {callback.from_user.id} возникла ошибка {err} во время попытки посмотреть список продуктов")
 
 
 @router.callback_query(IsOperator(), F.data.in_("operator_but_add_product"))
-async def process_operator_add_product(message: Message):
-    pass
+async def process_operator_add_product(callback: CallbackQuery):
+    try:
+        logger.info(f"Оператор с ID {callback.from_user.id} начал добавлять продукт.")
+    except Exception as err:
+        logger.error(f"У оператор с ID {callback.from_user.id} возникла ошибка {err} во время попытки начать добавлять продукт")
 
 
 @router.callback_query(IsOperator(), F.data.in_("operator_but_drop_product"))
-async def process_operator_drop_product(message: Message):
-    pass
+async def process_operator_drop_product(callback: CallbackQuery):
+    try:
+        logger.info(f"Оператор с ID {callback.from_user.id} начал удаление продукта.")
+    except Exception as err:
+        logger.error(f"У оператор с ID {callback.from_user.id} возникла ошибка {err} во время попытки начать удалять продукт")
 
 
 @router.callback_query(IsOperator(), F.data.in_("operator_but_show_users"))
-async def process_operator_show_users(message: Message):
-    pass
+async def process_operator_show_users(callback: CallbackQuery):
+    try:
+        logger.info(f"Оператор с ID {callback.from_user.id} просмотрел список пользователей.")
+    except Exception as err:
+        logger.error(f"У оператор с ID {callback.from_user.id} возникла ошибка {err} во время попытки посмотреть список пользователей")
 
