@@ -10,7 +10,7 @@ import re
 operator = OperatorService()
 
 
-operator.create_product(price=3400)
+operator.create_product(price=1200)
 
 
 

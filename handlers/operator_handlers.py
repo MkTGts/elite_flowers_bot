@@ -57,6 +57,7 @@ async def process_operator_show_product(callback: CallbackQuery):
     await callback.answer()
 
 
+
 @router.callback_query(IsOperator(), F.data.in_("operator_but_add_product"))
 async def process_operator_add_product(callback: CallbackQuery):
     try:
@@ -66,6 +67,7 @@ async def process_operator_add_product(callback: CallbackQuery):
         pass
 
     await callback.answer()
+
 
 
 @router.callback_query(IsOperator(), F.data.in_("operator_but_drop_product"))
@@ -79,6 +81,7 @@ async def process_operator_drop_product(callback: CallbackQuery):
     await callback.answer()
 
 
+
 @router.callback_query(IsOperator(), F.data.in_("operator_but_show_users"))
 async def process_operator_show_users(callback: CallbackQuery):
     try:
@@ -88,4 +91,5 @@ async def process_operator_show_users(callback: CallbackQuery):
         pass
 
     await callback.answer()
+
 
