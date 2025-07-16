@@ -10,6 +10,10 @@ operator_inline_kb = InlineKeyboardMarkup(
             callback_data="operator_but_show_orders")], 
                       [
         InlineKeyboardButton(
+            text=LEXICON_OPERATOR_KEYBOARDS["edit_order_status"],
+            callback_data="operator_but_edit_order_status")],
+                      [
+        InlineKeyboardButton(
             text=LEXICON_OPERATOR_KEYBOARDS["show_product"],
             callback_data="operator_but_show_product")],
                       [
